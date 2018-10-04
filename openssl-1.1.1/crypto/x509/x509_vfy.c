@@ -445,6 +445,7 @@ static int check_chain_extensions(X509_STORE_CTX *ctx)
     int i, must_be_ca, plen = 0;
     X509 *x;
     int proxy_path_length = 0;
+    int is_ca;
     int purpose;
     int allow_proxy_certs;
     int num = sk_X509_num(ctx->chain);
@@ -484,7 +485,7 @@ static int check_chain_extensions(X509_STORE_CTX *ctx)
                                 X509_V_ERR_PROXY_CERTIFICATES_NOT_ALLOWED))
                 return 0;
         }
-        ret = X509_check_ca(x);
+        ret = is_ca = X509_check_ca(x);
         switch (must_be_ca) {
         case -1:
             if ((ctx->param->flags & X509_V_FLAG_X509_STRICT)
@@ -524,8 +525,8 @@ static int check_chain_extensions(X509_STORE_CTX *ctx)
             if (!verify_cb_cert(ctx, x, i, X509_V_ERR_PATH_LENGTH_EXCEEDED))
                 return 0;
         }
-        /* Increment path length if not self issued */
-        if (!(x->ex_flags & EXFLAG_SI))
+        /* Increment path length if not self issued CA */
+        if (!(is_ca && x->ex_flags & EXFLAG_SI))
             plen++;
         /*
          * If this certificate is a proxy certificate, the next certificate
