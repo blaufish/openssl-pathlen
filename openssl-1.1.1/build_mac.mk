@@ -1,5 +1,7 @@
+.PHONY: all clean FORCE
+
 all: .done.make
-.done.make: | .done.configure
+.done.make: FORCE | .done.configure
 	make
 	touch $@
 
@@ -9,4 +11,6 @@ all: .done.make
 #./config
 
 clean:
-	-rm .done.*
+	-rm .done.
+
+FORCE:*
