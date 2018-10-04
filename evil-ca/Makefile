@@ -28,7 +28,7 @@ private.dir/evil.ca.key.pem: | private.dir
 	$(UMASK) openssl genrsa -aes256 -out private.dir/evil.ca.key.pem $(MODLEN)
 
 certs.dir/evil.ca.csr.pem: private.dir/evil.ca.key.pem | certs.dir 
-	$(UMASK) openssl req -config openssl.cnf \
+	$(UMASK) openssl req -config hack-ca4.cnf \
                 -new -sha256 \
                 -key private.dir/evil.ca.key.pem \
                 -out certs.dir/evil.ca.csr.pem
