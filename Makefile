@@ -20,7 +20,7 @@ verify:
 	openssl x509 -text -in root.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in intermediate.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in evilca.pem | grep -a1 "X509v3 Basic"
-	$(OPENSSL) verify -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
+	$(OPENSSL) verify -show_chain -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
 
 clean:
 	make -C root-ca clean
