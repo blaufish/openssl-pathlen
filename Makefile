@@ -20,6 +20,13 @@ verify:
 	openssl x509 -text -in root.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in intermediate.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in evilca.pem | grep -a1 "X509v3 Basic"
+	openssl x509 -text -in evilserver.pem | grep -a1 "X509v3 Basic"
+	@echo "----"
+	openssl x509 -text -in root.pem | egrep -a1 "X509v3 .* Key Identifier"
+	openssl x509 -text -in intermediate.pem | egrep -a1 "X509v3 .* Key Identifier"
+	openssl x509 -text -in evilca.pem | grep -a1 "X509v3 .* Key Identifier"
+	openssl x509 -text -in evilserver.pem | egrep -a1 "X509v3 .* Key Identifier"
+	@echo "----"
 	$(OPENSSL) verify -show_chain -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
 
 clean:
