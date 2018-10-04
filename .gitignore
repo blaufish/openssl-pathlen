@@ -1,1 +1,5 @@
 .*.sw?
+openssl-1.1.1.tar.gz
+openssl-1.1.1
+!openssl-1.1.1/build_mac.mk
+!openssl-1.1.1/crypto/x509/x509_vfy.c

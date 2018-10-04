@@ -1,14 +1,26 @@
-OPENSSL_SERVER = openssl
+all: prereq verify
+
+OPENSSL = openssl
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-     OPENSSL_SERVER = $(shell find /usr/local/Cellar/openssl -name openssl -type f | head -1 || echo openssl)
+
+OPENSSL = openssl-1.1.1/apps/openssl
+
+prereq:
+	make -C openssl-1.1.1 -f build_mac.mk
+
+else
+
+prereq:
+	echo "Not running on Mac"
+
 endif
 
 verify:
 	openssl x509 -text -in root.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in intermediate.pem | grep -a1 "X509v3 Basic"
 	openssl x509 -text -in evilca.pem | grep -a1 "X509v3 Basic"
-	openssl verify -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
+	$(OPENSSL) verify -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
 
 clean:
 	make -C root-ca clean
