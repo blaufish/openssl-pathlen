@@ -1,6 +1,6 @@
 # Path Length Constraint #
 
-## RFC5280 Path Length Constraint §algorithm ##
+## RFC5280 Path Length Constraint algorithm ##
 6.1.2.  Initialization
 ```
       (k)  max_path_length:  this integer is initialized to n, is
