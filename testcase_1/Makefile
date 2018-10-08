@@ -4,10 +4,10 @@ OPENSSL = openssl
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 
-OPENSSL = openssl-1.1.1/apps/openssl
+OPENSSL = ../openssl-1.1.1/apps/openssl
 
 prereq:
-	make -C openssl-1.1.1 -f build_mac.mk
+	make -C ../openssl-1.1.1 -f build_mac.mk
 
 else
 
