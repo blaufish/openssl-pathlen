@@ -1,4 +1,6 @@
 .*.sw?
+mbedtls-2.13.0-apache.tgz
+mbedtls-2.13.0
 openssl-1.1.1.tar.gz
 openssl-1.1.1
 !openssl-1.1.1/build_mac.mk
