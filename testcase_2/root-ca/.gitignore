@@ -1,0 +1,8 @@
+*.old
+certs.dir/
+index.txt
+index.txt.attr
+newcerts.dir/
+private.dir/
+serial
+setup.dirs.done

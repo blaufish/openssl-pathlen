@@ -1,0 +1,131 @@
+HOME			= .
+RANDFILE		= $ENV::HOME/.rnd
+
+oid_section		= new_oids
+
+[ new_oids ]
+
+tsa_policy1 = 1.2.3.4.1
+tsa_policy2 = 1.2.3.4.5.6
+tsa_policy3 = 1.2.3.4.5.7
+
+[ ca ]
+default_ca	= CA_default		# The default ca section
+
+[ CA_default ]
+
+dir		= .
+certs		= $dir/certs.dir
+crl_dir		= $dir/crl.dir
+database	= $dir/index.txt
+unique_subject	= no
+new_certs_dir	= $dir/newcerts.dir
+certificate	= $dir/certs.dir/ca.cert.pem
+serial		= $dir/serial
+crlnumber	= $dir/crlnumber
+crl		= $dir/crl.pem
+private_key	= $dir/private.dir/ca.key.pem
+RANDFILE	= $dir/private.dir/.rand
+x509_extensions	= usr_cert
+
+name_opt 	= ca_default		# Subject Name options
+cert_opt 	= ca_default		# Certificate field options
+
+default_days	= 365
+default_crl_days= 30
+default_md	= sha256
+preserve	= no
+
+policy		= policy_anything
+
+[ policy_anything ]
+countryName		= optional
+stateOrProvinceName	= optional
+localityName		= optional
+organizationName	= optional
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
+
+[ req ]
+default_bits		= 4096
+default_keyfile 	= privkey.pem
+distinguished_name	= req_distinguished_name
+attributes		= req_attributes
+x509_extensions	= root_extensions
+string_mask = utf8only
+
+[ req_distinguished_name ]
+countryName			= Country Name (2 letter code)
+countryName_default		= SE 
+countryName_min			= 2
+countryName_max			= 2
+
+stateOrProvinceName		= State or Province Name (full name)
+stateOrProvinceName_default	= Root
+
+localityName			= Locality Name (eg, city)
+localityName_default	= Root
+
+0.organizationName		= Organization Name (eg, company)
+0.organizationName_default	= Root
+
+organizationalUnitName		= Organizational Unit Name (eg, section)
+organizationalUnitName_default	= Root
+
+commonName			= Common Name (e.g. server FQDN or YOUR name)
+commonName_default	= Root
+commonName_max			= 64
+
+emailAddress			= Email Address
+emailAddress_max		= 64
+
+[ req_attributes ]
+challengePassword		= A challenge password
+challengePassword_min		= 4
+challengePassword_max		= 20
+
+unstructuredName		= An optional company name
+
+[ usr_cert ]
+
+basicConstraints=CA:FALSE
+nsComment			= "OpenSSL Generated Certificate"
+# PKIX recommendations harmless if included in all certificates.
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid
+
+[ v3_req ]
+
+# Extensions to add to a certificate request
+
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+
+[ root_extensions ]
+subjectKeyIdentifier=hash # PKIX recommendation.
+authorityKeyIdentifier=keyid:always,issuer # PKIX recommendation.
+keyUsage = cRLSign, keyCertSign # typical for a CA certificate.
+basicConstraints = critical,CA:true,pathlen:0
+#
+# RFC5280:
+# A pathLenConstraint of zero indicates that no non-self-issued
+# intermediate CA certificates may follow in a valid certification
+# path. Where it appears, the pathLenConstraint field MUST be greater
+# than or equal to zero. Where pathLenConstraint does not appear, no
+# limit is imposed.
+#
+
+[ intermediate_extensions ]
+subjectKeyIdentifier=hash # PKIX recommendation.
+authorityKeyIdentifier=keyid:always,issuer # PKIX recommendation.
+keyUsage = cRLSign, keyCertSign # typical for a CA certificate.
+basicConstraints = critical,CA:true,pathlen:0
+#
+# RFC5280:
+# A pathLenConstraint of zero indicates that no non-self-issued
+# intermediate CA certificates may follow in a valid certification
+# path. Where it appears, the pathLenConstraint field MUST be greater
+# than or equal to zero. Where pathLenConstraint does not appear, no
+# limit is imposed.
+#
