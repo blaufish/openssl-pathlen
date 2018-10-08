@@ -55,7 +55,9 @@ So the plen counter is normally one too high, the RFC path length is X the plen 
 
 Therefor, there is a +1 in the openssl code base to allow for the off-by-one to succeed.
 
-### Off-By-One not applied to self-issued non-authority ###
+## OpenSSL Bug 1: Off-By-One not applied to self-issued non-authority ##
+
+[Testcase\_1](testcase_1)
 
 The following testcase forced an error where the leaf-certificate's +1 wasn't applied,
 ```
@@ -63,26 +65,9 @@ depth=0: C = SE, ST = EvilServer, L = EvilServer, O = EvilServer, OU = EvilServe
 depth=1: C = SE, ST = EvilServer, L = EvilServer, O = EvilServer, OU = EvilServer, CN = EvilServer (untrusted)
 ```
 It was triggered by Self-issued certificate authority rule incorrectly applied to leaf in
-`if (!(x->ex_flags & EXFLAG_SI))`.
-
-A fix was proposed in [OpenSSL Pull 7353](https://github.com/openssl/openssl/pull/7353)
-
-# Trace #
+`if (!(x->ex_flags & EXFLAG_SI))` leading to `plen++` not being applied.
 
 ```
-openssl x509 -text -in root.pem | grep -a1 "X509v3 Basic"
-                Certificate Sign, CRL Sign
-            X509v3 Basic Constraints: critical
-                CA:TRUE, pathlen:1
-openssl x509 -text -in intermediate.pem | grep -a1 "X509v3 Basic"
-                Certificate Sign, CRL Sign
-            X509v3 Basic Constraints: critical
-                CA:TRUE, pathlen:0
-openssl x509 -text -in evilca.pem | grep -a1 "X509v3 Basic"
-
-            X509v3 Basic Constraints: critical
-                CA:TRUE
-openssl verify -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
 ******* important variables *******
 *** check_chain_extensions:523 i=0
 *** check_chain_extensions:524 plen=0
@@ -94,30 +79,35 @@ openssl verify -verbose -CAfile root.pem -untrusted untrusted.pem evilserver.pem
 *** check_chain_extensions:530 (plen > (x->ex_pathlen + proxy_path_length + 1))=0
 ******* important variables *******
 *** check_chain_extensions:523 i=1
-*** check_chain_extensions:524 plen=0
+*** check_chain_extensions:524 plen=0 <--- bug is here. plen=1 was expected, but plen++ not executed in previous iteration.
 *** check_chain_extensions:525 x->ex_pathlen=-1
 ******* if statement components *******
 *** check_chain_extensions:527 i > 1=0
 *** check_chain_extensions:528 !(x->ex_flags & EXFLAG_SI)=1
 *** check_chain_extensions:529 (x->ex_pathlen != -1)=0
-*** check_chain_extensions:530 (plen > (x->ex_pathlen + proxy_path_length + 1))=0
+```
+
+A fix was proposed in [OpenSSL Pull 7353](https://github.com/openssl/openssl/pull/7353)
+
+## OpenSSL Bug 2: Contrainst ignored when checking Root and other Self-Issued certificates ##
+
+[Testcase\_2](testcase_2)
+
+Path Length Constraint set by Root (and any other self-issued authority) is ignored.
+
+```
 ******* important variables *******
-*** check_chain_extensions:523 i=2
-*** check_chain_extensions:524 plen=1
-*** check_chain_extensions:525 x->ex_pathlen=0
+*** check_chain_extensions:524 i=2
+*** check_chain_extensions:525 plen=2
+*** check_chain_extensions:526 x->ex_pathlen=0
 ******* if statement components *******
-*** check_chain_extensions:527 i > 1=1
-*** check_chain_extensions:528 !(x->ex_flags & EXFLAG_SI)=1
-*** check_chain_extensions:529 (x->ex_pathlen != -1)=1
-*** check_chain_extensions:530 (plen > (x->ex_pathlen + proxy_path_length + 1))=0
-******* important variables *******
-*** check_chain_extensions:523 i=3
-*** check_chain_extensions:524 plen=2
-*** check_chain_extensions:525 x->ex_pathlen=1
-******* if statement components *******
-*** check_chain_extensions:527 i > 1=1
-*** check_chain_extensions:528 !(x->ex_flags & EXFLAG_SI)=0
-*** check_chain_extensions:529 (x->ex_pathlen != -1)=1
-*** check_chain_extensions:530 (plen > (x->ex_pathlen + proxy_path_length + 1))=0
+*** check_chain_extensions:528 i > 1=1
+*** check_chain_extensions:529 !(x->ex_flags & EXFLAG_SI)=0 <-- bug is here. constraint check ignored.
+*** check_chain_extensions:530 (x->ex_pathlen != -1)=1
+*** check_chain_extensions:531 (plen > (x->ex_pathlen + proxy_path_length + 1))=1
 evilserver.pem: OK
+Chain:
+depth=0: C = SE, ST = EvilServer, L = EvilServer, O = EvilServer, OU = EvilServer, CN = EvilServer (untrusted)
+depth=1: C = SE, ST = EvilCA, L = EvilCA, O = EvilCA, OU = EvilCA, CN = EvilCA (untrusted)
+depth=2: C = SE, ST = Root, L = Root, O = Root, OU = Root, CN = Root
 ```
