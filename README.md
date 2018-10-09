@@ -1,4 +1,8 @@
 # Path Length Constraint #
+* RFC5820 Path Length Constraint Algorithm
+* OpenSSL implementation of RFC5820 algorithm
+* OpenSSL implementation bugs and fixes in pull request by vdukhovni
+
 
 ## RFC5280 Path Length Constraint algorithm ##
 6.1.2.  Initialization
@@ -20,7 +24,7 @@
            of pathLenConstraint.
 ```
 
-## RFC5280 Self-Issued loop hole ##
+### RFC5280 Self-Issued loop hole ###
 
 What is self-issued?
 ```
@@ -39,6 +43,37 @@ i.e. Path Length Constraint can be easily circumvented in a Certificate Authorit
 Attacker breach Certificate Authority and issue a new subordinate authority with a name
 that will trigger the "self-issued" exception. This render the the constraint moot and
 the mallicious subordinate authority is free to wreak mayhem upon this world.
+
+### RFC5280 Should trust anchor certificate be processed or not? ###
+
+Some users on openssl-users thinks the trust anchor certificate should not be expected to
+be processed. A fair reading of the various relevant parts of the RFC seems to indicate
+that it is strongly RECOMMENDED but not necesserily REQUIRED. But clearly expressed
+normative RFC2119 wording is missing in RFC5280.
+
+In my humble opinion, the intent of RFC5280 is pretty clear, any CA certificate including
+self-signed root, is recommended to be processed. So the first cert in the certificate path
+validation ought to be the trust anchor certificate.
+
+Relevant section, this section might be interprented differently by different readers:
+```
+   In Section 6.1, the text describes basic path validation.  Valid
+   paths begin with certificates issued by a trust anchor.  The
+   algorithm requires the public key of the CA, the CA's name, and any
+   constraints upon the set of paths that may be validated using this
+   key.
+```
+
+Relevant section, this section appears to clarify that e.g. self signed trust
+anchor certificate is to be processed:
+```
+   Where a CA distributes self-signed certificates to specify trust
+   anchor information, certificate extensions can be used to specify
+   recommended inputs to path validation.  For example, a policy
+   constraints extension could be included in the self-signed
+   certificate to indicate that paths beginning with this trust anchor
+   should be trusted only for the specified policies.
+```
 
 ## OpenSSL implementation ##
 
