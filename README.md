@@ -55,6 +55,13 @@ So the plen counter is normally one too high, the RFC path length is X the plen 
 
 Therefor, there is a +1 in the openssl code base to allow for the off-by-one to succeed.
 
+## OpenSSL bug fixes ##
+
+[pull/7353](https://github.com/openssl/openssl/pull/7353) by [Viktor Dukhovni](https://github.com/vdukhovni) addresses these issues:
+* Testcase 1 "self issued leaf" messed up path length calculations, constraints could be violated.
+* Testcase 2 path length constraint ignored for self issued certificates in chain.
+* plen counter simplified to be the path length value. (no off by 1).
+
 ## OpenSSL Bug 1: Off-By-One not applied to self-issued non-authority ##
 
 [Testcase\_1](testcase_1)
