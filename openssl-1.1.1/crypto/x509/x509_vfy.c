@@ -519,16 +519,6 @@ static int check_chain_extensions(X509_STORE_CTX *ctx)
         if (purpose > 0 && !check_purpose(ctx, x, purpose, i, must_be_ca))
             return 0;
         /* Check pathlen if not self issued */
-#define PRINT(x) printf("*** %s:%d %s=%d\n", __func__, __LINE__, #x, x)
-	printf("******* important variables *******\n");
-	PRINT(i);
-	PRINT(plen);
-	PRINT(x->ex_pathlen);
-	printf("******* if statement components *******\n");
-	PRINT(i > 1);
-	PRINT(!(x->ex_flags & EXFLAG_SI));
-	PRINT((x->ex_pathlen != -1));
-	PRINT((plen > (x->ex_pathlen + proxy_path_length + 1)));
         if ((i > 1) && !(x->ex_flags & EXFLAG_SI)
             && (x->ex_pathlen != -1)
             && (plen > (x->ex_pathlen + proxy_path_length + 1))) {
